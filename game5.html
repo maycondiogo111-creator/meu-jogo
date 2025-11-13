@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Clique Certeiro</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle, #101010, #000);
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+  #hud {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 18px;
+  }
+  #message {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+  }
+</style>
+</head>
+<body>
+
+<div id="hud">Pontos: <span id="score">0</span></div>
+<canvas id="gameCanvas"></canvas>
+<div id="message">🎯 Surpresa! Você mandou bem! Mande uma mensagem para o número 11-966649356 para retirar o seu prêmio! ;) 🎯</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const scoreDisplay = document.getElementById("score");
+const message = document.getElementById("message");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let targets = [];
+let score = 0;
+let spawnTime = 1000; // ← Tempo entre alvos (ms)
+let lifetime = 900;   // ← Quanto tempo o alvo fica visível
+let playing = true;
+
+function spawnTarget() {
+  const size = 35;
+  const x = Math.random() * (canvas.width - size * 2) + size;
+  const y = Math.random() * (canvas.height - size * 2) + size;
+  const color = `hsl(${Math.random() * 360}, 80%, 50%)`;
+  const createdAt = Date.now();
+  targets.push({ x, y, size, color, createdAt });
+}
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const now = Date.now();
+  for (let i = targets.length - 1; i >= 0; i--) {
+    const t = targets[i];
+    if (now - t.createdAt > lifetime) {
+      targets.splice(i, 1);
+      continue;
+    }
+
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, t.size, 0, Math.PI * 2);
+    ctx.fillStyle = t.color;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, t.size / 2, 0, Math.PI * 2);
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  if (playing) requestAnimationFrame(update);
+}
+
+canvas.addEventListener("click", e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  for (let i = targets.length - 1; i >= 0; i--) {
+    const t = targets[i];
+    const dx = mx - t.x;
+    const dy = my - t.y;
+    if (Math.sqrt(dx * dx + dy * dy) < t.size) {
+      targets.splice(i, 1);
+      score++;
+      scoreDisplay.textContent = score;
+
+      // Aumenta dificuldade gradualmente
+      if (spawnTime > 400) spawnTime -= 50; // ← Diminui tempo entre alvos
+      if (lifetime > 400) lifetime -= 30;  // ← Alvos somem mais rápido
+
+      if (score >= 10) {
+        playing = false;
+        message.style.display = "block";
+      }
+    }
+  }
+});
+
+setInterval(() => {
+  if (playing && targets.length < 3) spawnTarget();
+}, () => spawnTime);
+
+update();
+setInterval(spawnTarget, spawnTime);
+</script>
+
+</body>
+</html>
