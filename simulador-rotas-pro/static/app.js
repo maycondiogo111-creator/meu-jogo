@@ -232,6 +232,7 @@ async function atualizarRastreamento() {
     try {
         var posicoes = await apiRastreamento();
         atualizarMotoristasMapa(posicoes);
+        await carregarMotoristas();
     } catch (err) {
         console.error('Erro no rastreamento:', err);
     }
