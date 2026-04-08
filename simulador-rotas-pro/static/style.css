@@ -1,0 +1,473 @@
+/* =========================================
+   DESIGN SYSTEM (BASE)
+   Para mudar cores/fontes: mexa nas variaveis :root
+========================================= */
+:root {
+    /* CORES */
+    --color-bg:             #f5f5f5;
+    --color-sidebar-start:  #1e1e2f;
+    --color-sidebar-end:    #343a40;
+    --color-header:         #ffffff;
+
+    --color-primary:        #28a745;
+    --color-primary-hover:  #1e7e34;
+
+    --color-text:           #333;
+    --color-white:          #ffffff;
+    --color-border:         #ccc;
+
+    /* CARDS */
+    --card-bg:              rgba(255, 255, 255, 0.7);
+    --card-radius:          10px;
+
+    /* LAYOUT */
+    --sidebar-width:        60px;
+    --header-height:        50px;
+
+    /* TIPOGRAFIA */
+    --font-main:            'Poppins', sans-serif;
+}
+
+
+/* =========================================
+   GLOBAL
+========================================= */
+body {
+    margin: 0;
+    font-family: var(--font-main);
+    background: var(--color-bg);
+}
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+.sidebar {
+    position:       fixed;
+    top:            0;
+    left:           0;
+    width:          var(--sidebar-width);
+    height:         100vh;
+    background:     linear-gradient(180deg, var(--color-sidebar-start), var(--color-sidebar-end));
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    padding-top:    20px;
+    z-index:        1000;
+    overflow-y:     auto;
+}
+
+.sidebar .icon {
+    color:      var(--color-white);
+    margin:     12px 0;
+    font-size:  18px;
+    cursor:     pointer;
+    transition: 0.2s;
+    opacity:    0.6;
+    position:   relative;
+}
+
+.sidebar .icon:hover {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.sidebar .icon.active {
+    opacity: 1;
+}
+
+.sidebar .icon.active::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--color-primary);
+    border-radius: 0 2px 2px 0;
+}
+
+.sidebar .icon .tooltip {
+    display: none;
+    position: absolute;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1001;
+}
+
+.sidebar .icon:hover .tooltip {
+    display: block;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+.header {
+    position:   fixed;
+    top:        0;
+    left:       var(--sidebar-width);
+    right:      0;
+    height:     var(--header-height);
+    background: var(--color-header);
+    display:    flex;
+    align-items:center;
+    padding:    0 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index:    999;
+}
+
+.header-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-right: 15px;
+}
+
+
+/* =========================================
+   SEARCH
+========================================= */
+.search {
+    width:         80%;
+    padding:       8px;
+    border-radius: 5px;
+    border:        1px solid var(--color-border);
+    outline:       none;
+    font-family:   var(--font-main);
+}
+
+.search:focus {
+    border-color: var(--color-primary);
+}
+
+
+/* =========================================
+   MAIN
+========================================= */
+.main {
+    margin-left: var(--sidebar-width);
+    margin-top:  var(--header-height);
+    padding:     20px;
+}
+
+
+/* =========================================
+   CARDS
+========================================= */
+.card {
+    width:            320px;
+    max-height:       80vh;
+    overflow-y:       auto;
+    background:       var(--card-bg);
+    border-radius:    var(--card-radius);
+    padding:          10px;
+    backdrop-filter:  blur(6px);
+}
+
+.card-header {
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+}
+
+.card-content {
+    margin-top: 10px;
+    font-size:  13px;
+}
+
+.card.minimized .card-content {
+    display: none;
+}
+
+.card h1 {
+    font-size: 16px;
+    margin:    0;
+}
+
+#info-rota p,
+#instrucoes p {
+    font-size: 13px;
+    margin:    4px 0;
+}
+
+#instrucoes p {
+    font-size: 12px;
+}
+
+.scroll-block {
+    margin-top:  10px;
+    max-height:  200px;
+    overflow-y:  auto;
+}
+
+
+/* =========================================
+   BOTOES
+========================================= */
+button {
+    padding:       8px 16px;
+    margin:        4px;
+    border:        none;
+    background:    var(--color-primary);
+    color:         var(--color-white);
+    cursor:        pointer;
+    border-radius: 5px;
+    transition:    0.2s;
+    font-family:   var(--font-main);
+    font-size:     13px;
+}
+
+button:hover {
+    background: var(--color-primary-hover);
+    transform:  translateY(-1px);
+}
+
+button.btn-danger {
+    background: #e74c3c;
+}
+button.btn-danger:hover {
+    background: #c0392b;
+}
+
+button.btn-secondary {
+    background: #6c757d;
+}
+button.btn-secondary:hover {
+    background: #545b62;
+}
+
+button.btn-info {
+    background: #3498db;
+}
+button.btn-info:hover {
+    background: #2980b9;
+}
+
+button.btn-warning {
+    background: #f39c12;
+}
+button.btn-warning:hover {
+    background: #d68910;
+}
+
+.toggle-btn {
+    background: transparent;
+    border:     none;
+    font-size:  16px;
+    cursor:     pointer;
+    color:      var(--color-text);
+    padding:    0;
+    margin:     0;
+}
+
+
+/* =========================================
+   MAPA
+========================================= */
+#map {
+    position: fixed;
+    top:      var(--header-height);
+    left:     var(--sidebar-width);
+    right:    0;
+    bottom:   0;
+    z-index:  1;
+}
+
+
+/* =========================================
+   CONTAINER DE CARDS (sobre o mapa)
+========================================= */
+.cards-container {
+    position:       fixed;
+    top:            calc(var(--header-height) + 20px);
+    left:           calc(var(--sidebar-width) + 20px);
+    display:        flex;
+    flex-direction: column;
+    gap:            15px;
+    z-index:        2;
+    max-height:     calc(100vh - var(--header-height) - 40px);
+    overflow-y:     auto;
+}
+
+
+/* =========================================
+   INFO ROTA
+========================================= */
+#info-rota {
+    margin-top:  15px;
+    text-align:  left;
+}
+
+
+/* =========================================
+   TIPOGRAFIA
+========================================= */
+h1 {
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 14px;
+}
+
+
+/* =========================================
+   ITEM DE ROTA SALVA
+========================================= */
+.rota-item {
+    background:    #fff;
+    padding:       8px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    cursor:        pointer;
+    border:        1px solid #ddd;
+    font-size:     12px;
+    line-height:   1.5;
+}
+
+.rota-item:hover {
+    background: #f0f0f0;
+}
+
+
+/* =========================================
+   PAINEIS DE ABA
+========================================= */
+.painel-aba {
+    display: none;
+}
+
+
+/* =========================================
+   FORMULARIOS INLINE
+========================================= */
+.form-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.form-inline input,
+.form-inline select {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: var(--font-main);
+}
+
+.form-inline input:focus,
+.form-inline select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+.form-row {
+    display: flex;
+    gap: 6px;
+}
+
+.form-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.form-inline label {
+    font-size: 11px;
+    color: #666;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+
+/* =========================================
+   DASHBOARD
+========================================= */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.kpi-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.kpi-valor {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.kpi-label {
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+
+/* =========================================
+   RESULTADO ROTEIRIZACAO
+========================================= */
+.resultado-roteirizacao p,
+.resultado-simulacao p {
+    font-size: 12px;
+    margin: 3px 0;
+}
+
+.resultado-simulacao table {
+    font-size: 12px;
+}
+
+.resultado-simulacao th,
+.resultado-simulacao td {
+    border-bottom: 1px solid #eee;
+}
+
+
+/* =========================================
+   IMPORTACAO
+========================================= */
+.importacao-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+.importacao-area:hover {
+    border-color: var(--color-primary);
+}
+
+.importacao-area input[type="file"] {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+
+/* =========================================
+   SEPARADOR
+========================================= */
+.separador {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 10px 0;
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Rotas Pro</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- ========== SIDEBAR ========== -->
+<div class="sidebar">
+    <div class="icon active" data-aba="simulador" onclick="mostrarAba('simulador')" title="Simulador de Rotas">
+        <i class="fas fa-route"></i>
+        <span class="tooltip">Simulador</span>
+    </div>
+    <div class="icon" data-aba="frota" onclick="mostrarAba('frota')" title="Frota Multi-Veiculos">
+        <i class="fas fa-truck"></i>
+        <span class="tooltip">Frota</span>
+    </div>
+    <div class="icon" data-aba="rastreamento" onclick="mostrarAba('rastreamento')" title="Rastreamento em Tempo Real">
+        <i class="fas fa-map-marker-alt"></i>
+        <span class="tooltip">Rastreamento</span>
+    </div>
+    <div class="icon" data-aba="simulacao" onclick="mostrarAba('simulacao')" title="Simulacao de Cenarios">
+        <i class="fas fa-chart-line"></i>
+        <span class="tooltip">Simulacao</span>
+    </div>
+    <div class="icon" data-aba="dashboard" onclick="mostrarAba('dashboard')" title="Dashboard Operacional">
+        <i class="fas fa-tachometer-alt"></i>
+        <span class="tooltip">Dashboard</span>
+    </div>
+    <div class="icon" data-aba="importacao" onclick="mostrarAba('importacao')" title="Importar Pedidos">
+        <i class="fas fa-file-import"></i>
+        <span class="tooltip">Importacao</span>
+    </div>
+</div>
+
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+    <span class="header-title">Simulador de Rotas Pro</span>
+    <input type="text" class="search" placeholder="Buscar endereco..." id="search-input">
+</div>
+
+
+<!-- ========== MAPA ========== -->
+<div id="map"></div>
+
+
+<!-- ========== CARDS CONTAINER ========== -->
+<div class="cards-container">
+
+    <!-- ================================================
+         ABA: SIMULADOR DE ROTAS (original)
+    ================================================= -->
+    <div class="painel-aba" id="painel-simulador" style="display:block;">
+
+        <!-- Card: Calcular Rota -->
+        <div class="card" id="card-rota">
+            <div class="card-header">
+                <button class="toggle-btn" onclick="toggleCard('card-rota')">&minus;</button>
+                <h1><i class="fas fa-route"></i> Simulador de Rotas</h1>
+            </div>
+            <div class="card-content">
+                <p style="font-size:12px;color:#666;">Clique no mapa para adicionar pontos, depois calcule a rota otimizada.</p>
+
+                <button onclick="calcularRota()">
+                    <i class="fas fa-play"></i> Calcular Rota
+                </button>
+                <button onclick="limparMapaCompleto()" class="btn-secondary">
+                    <i class="fas fa-eraser"></i> Limpar Mapa
+                </button>
+                <button onclick="salvarRota()" class="btn-info">
+                    <i class="fas fa-save"></i> Salvar Rota
+                </button>
+
+                <div id="info-rota">
+                    <hr class="separador">
+                    <p><i class="fas fa-road"></i> <strong>Distancia:</strong> <span id="distancia">-</span></p>
+                    <p><i class="fas fa-clock"></i> <strong>Tempo:</strong> <span id="tempo">-</span></p>
+                    <p><i class="fas fa-dollar-sign"></i> <strong>Custo:</strong> <span id="custo">-</span></p>
+
+                    <hr class="separador">
+                    <h3><i class="fas fa-list"></i> Instrucoes</h3>
+                    <div id="instrucoes" class="scroll-block"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Rotas Salvas -->
+        <div class="card" id="card-salvas" style="margin-top:15px;">
+            <div class="card-header">
+                <button class="toggle-btn" onclick="toggleCard('card-salvas')">&minus;</button>
+                <h1><i class="fas fa-bookmark"></i> Rotas Salvas</h1>
+            </div>
+            <div class="card-content">
+                <div id="lista-rotas" class="scroll-block">
+                    <p style="color:#999;font-size:12px">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================
+         ABA: FROTA MULTI-VEICULOS (Feature 1)
+    ================================================= -->
+    <div class="painel-aba" id="painel-frota">
+
+        <!-- Card: Veiculos -->
+        <div class="card" id="card-veiculos">
+            <div class="card-header">
+                <button class="toggle-btn" onclick="toggleCard('card-veiculos')">&minus;</button>
+                <h1><i class="fas fa-truck"></i> Frota</h1>
+            </div>
+            <div class="card-content">
+                <div class="form-inline">
+                    <label>Adicionar Veiculo</label>
+                    <input type="text" id="veiculo-nome" placeholder="Nome do veiculo">
+                    <input type="text" id="veiculo-placa" placeholder="Placa (opcional)">
+                    <div class="form-row">
+                        <input type="number" id="veiculo-peso" placeholder="Peso (kg)" step="0.1">
+                        <input type="number" id="veiculo-volume" placeholder="Vol (m3)" step="0.1">
+                    </div>
+                    <input type="number" id="veiculo-custo" placeholder="Custo/km (R$)" step="0.1" value="2.5">
+                    <button onclick="adicionarVeiculo()"><i class="fas fa-plus"></i> Adicionar</button>
+                </div>
+
+                <hr class="separador">
+                <h3>Veiculos Cadastrados</h3>
+                <div id="lista-veiculos" class="scroll-block"></div>
+
+                <hr class="separador">
+                <h3>Deposito (Ponto de Partida)</h3>
+                <div class="form-row">
+                    <input type="text" id="deposito-lat" placeholder="Latitude" value="-23.55">
+                    <input type="text" id="deposito-lng" placeholder="Longitude" value="-46.63">
+                </div>
+
+                <button onclick="roteirizarFrota()" style="margin-top:8px;">
+                    <i class="fas fa-cogs"></i> Roteirizar Frota
+                </button>
+
+                <div id="resultado-frota" style="margin-top:10px;"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================
+         ABA: RASTREAMENTO EM TEMPO REAL (Feature 2)
+    ================================================= -->
+    <div class="painel-aba" id="painel-rastreamento">
+
+        <div class="card" id="card-rastreamento">
+            <div class="card-header">
+                <button class="toggle-btn" onclick="toggleCard('card-rastreamento')">&minus;</button>
+                <h1><i class="fas fa-map-marker-alt"></i> Rastreamento</h1>
+            </div>
+            <div class="card-content">
+                <p style="font-size:12px;color:#666;">Acompanhe motoristas em tempo real no mapa.</p>
+
+                <div class="form-inline">
+                    <label>Adicionar Motorista</label>
+                    <input type="text" id="motorista-nome" placeholder="Nome do motorista">
+                    <button onclick="adicionarMotorista()"><i class="fas fa-user-plus"></i> Adicionar</button>
+                </div>
+
+                <hr class="separador">
+                <h3>Motoristas</h3>
+                <div id="lista-motoristas" class="scroll-block"></div>
+
+                <hr class="separador">
+                <div style="display:flex;gap:4px;">
+                    <button onclick="iniciarRastreamento()" class="btn-info">
+                        <i class="fas fa-play"></i> Iniciar
+                    </button>
+                    <button onclick="pararRastreamento()" class="btn-danger">
+                        <i class="fas fa-stop"></i> Parar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================
+         ABA: SIMULACAO DE CENARIOS (Feature 3)
+    ================================================= -->
+    <div class="painel-aba" id="painel-simulacao">
+
+        <div class="card" id="card-simulacao">
+            <div class="card-header">
+                <button class="toggle-btn" onclick="toggleCard('card-simulacao')">&minus;</button>
+                <h1><i class="fas fa-chart-line"></i> Simulacao</h1>
+            </div>
+            <div class="card-content">
+                <p style="font-size:12px;color:#666;">Compare cenarios adicionando veiculos ou pedidos extras.</p>
+
+                <div class="form-inline">
+                    <label>Veiculos Extras</label>
+                    <input type="number" id="sim-veiculos-extras" placeholder="Quantidade extra" value="1" min="0">
+
+                    <button onclick="executarSimulacao()" style="margin-top:4px;">
+                        <i class="fas fa-flask"></i> Simular Cenario
+                    </button>
+                </div>
+
+                <div id="resultado-simulacao" style="margin-top:10px;"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================
+         ABA: DASHBOARD OPERACIONAL (Feature 4)
+    ================================================= -->
+    <div class="painel-aba" id="painel-dashboard">
+
+        <div class="card" id="card-dashboard" style="width:360px;">
+            <div class="card-header">
+                <button class="toggle-btn" onclick="toggleCard('card-dashboard')">&minus;</button>
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+            </div>
+            <div class="card-content">
+                <button onclick="carregarDashboard()" class="btn-info" style="margin-bottom:10px;">
+                    <i class="fas fa-sync"></i> Atualizar KPIs
+                </button>
+                <div id="dashboard-content">
+                    <p style="color:#999;font-size:12px">Carregando dados...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================
+         ABA: IMPORTACAO DE PEDIDOS (Feature 5)
+    ================================================= -->
+    <div class="painel-aba" id="painel-importacao">
+
+        <div class="card" id="card-importacao">
+            <div class="card-header">
+                <button class="toggle-btn" onclick="toggleCard('card-importacao')">&minus;</button>
+                <h1><i class="fas fa-file-import"></i> Importacao</h1>
+            </div>
+            <div class="card-content">
+                <div class="importacao-area">
+                    <p style="font-size:12px;margin:0 0 8px 0;"><i class="fas fa-cloud-upload-alt"></i> Importar Pedidos</p>
+                    <input type="file" id="arquivo-importacao" accept=".xlsx,.xls,.csv">
+                    <br>
+                    <button onclick="importarArquivo()" style="margin-top:6px;">
+                        <i class="fas fa-upload"></i> Importar
+                    </button>
+                </div>
+
+                <div style="display:flex;gap:4px;">
+                    <button onclick="baixarTemplate()" class="btn-info">
+                        <i class="fas fa-download"></i> Template CSV
+                    </button>
+                    <button onclick="limparTodosPedidos()" class="btn-danger">
+                        <i class="fas fa-trash"></i> Limpar
+                    </button>
+                </div>
+
+                <hr class="separador">
+                <h3>Pedidos <span id="pedidos-count" style="color:#888;font-weight:normal;"></span></h3>
+                <div id="lista-pedidos" class="scroll-block"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ========== SCRIPTS ========== -->
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- App modules (ordem importa) -->
+<script src="{{ url_for('static', filename='state.js') }}"></script>
+<script src="{{ url_for('static', filename='api.js') }}"></script>
+<script src="{{ url_for('static', filename='map.js') }}"></script>
+<script src="{{ url_for('static', filename='ui.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+</html>
